@@ -1,0 +1,9 @@
+void up(int *x, int *y, int largeur, struct Case T[][largeur])
+{
+    if (*x - 1 >= 0 && T[*x - 1][*y].bas == 0 && T[*x][*y].haut == 0)
+    {
+        *x = *x - 1;
+        return up(x, y, largeur, T);
+    }
+    printf("x = %d, y = %d\n", *x, *y);
+}
