@@ -3,7 +3,10 @@ ifndef DISPLAY_H
 
 #include <stlib.h>
 #include <stdio.h>
-
+#include <time.h>
+#include <unistd.h> 
+#include <limits.h>
+#include <ctype.h>
 void print_grid(int height, int width, struct Cell grid[][width], int robots[][2]);
 void initialize_grid(int height, int width, struct Cell grid[][width]);
 void place_targets(int height, int width, struct Cell grid[][width], int *valid_targets, int *num_valid_targets);
