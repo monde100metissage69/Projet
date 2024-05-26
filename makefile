@@ -1,16 +1,22 @@
 all: exec
 
-mouvement.o : mouvement1.c mouvemt 
-	gcc -c func.c -o func.o
+mouvement1.o : mouvement1.c mouvement1.h 
+	gcc -c mouvement1.c -o mouvement1.o
+mouvement2.o : mouvement2.c mouvement2.h 
+	gcc -c mouvement2.c -o mouvement2.o
+mouvement3.o : mouvement3.c mouvement3.h 
+	gcc -c mouvement3.c -o mouvement3.o
+mouvement4.o : mouvement4.c mouvement4.h 
+	gcc -c mouvement4.c -o mouvement4.o
 	
-display.o : display.c display.h params.h
+display.o : display.c display.h 
 	gcc -c display.c -o display.o
 	
-main.o : main.c display.h func.h params.h
+main.o : main.c display.h mouvement1.h mouvement2.h mouvement3.h mouvement4.h 
 	gcc -c main.c -o main.o
 
-exec : main.o func.o display.o
-	gcc main.o func.o display.o -o exec
+exec : main.o mouvement1.o mouvement2.o mouvement3.o mouvement4.o display.o
+	gcc main.o mouvement1.o mouvement2.o mouvement3.o mouvement4.o display.o -o exec
 
 clean:
 	rm -f *.o
