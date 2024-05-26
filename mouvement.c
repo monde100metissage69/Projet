@@ -1,3 +1,5 @@
+#include "mouvement.h"
+
 // Move the robot up if possible
 void up(int *x, int *y, int width, struct Cell grid[][width])
 {
