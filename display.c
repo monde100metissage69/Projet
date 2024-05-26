@@ -1,3 +1,5 @@
+#include "display.h"
+
 void print_grid(int height, int width, struct Cell grid[][width], int robots[][2])
 {
     for (int i = 0; i < height; i++)
