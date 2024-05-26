@@ -1,4 +1,9 @@
 #include <stdio.h>
+#include <stlib.h>
+#include <time.h>
+#include <unistd.h> 
+#include <limits.h>
+#include <ctype.h>
 #include "display.h"
 #include "mouvement.h"
 #include "validation.h"
