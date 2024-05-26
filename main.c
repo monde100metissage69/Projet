@@ -1,9 +1,11 @@
 int main()
 {
-    int i,X, num_players, rounds, current_round;
+    int i, X, num_players, rounds, current_round;
     srand(time(NULL));
-    printf("Press 1 to start : ");
+    printf("WELCOME TO CYBER PATH!\n");
+    printf("Press 1 to start\n");
     scanf("%d", &X);
+
     // Ask for the number of players and rounds
     printf("Enter the number of players: ");
     while (scanf("%d", &num_players) != 1 || num_players <= 0)
