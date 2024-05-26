@@ -6,7 +6,6 @@ void up(int *x, int *y, int width, struct Cell grid[][width])
         *x = *x - 1;
         return up(x, y, width, grid);
     }
-    printf("x = %d, y = %d\n", *x, *y);
 }
 
 // Move the robot down if possible
@@ -17,7 +16,6 @@ void down(int *x, int *y, int width, int height, struct Cell grid[][width])
         *x = *x + 1;
         return down(x, y, width, height, grid);
     }
-    printf("x = %d, y = %d\n", *x, *y);
 }
 
 // Move the robot left if possible
@@ -28,7 +26,6 @@ void left(int *x, int *y, int height, struct Cell grid[][height])
         *y = *y - 1;
         return left(x, y, height, grid);
     }
-    printf("x = %d, y = %d\n", *x, *y);
 }
 
 // Move the robot right if possible
@@ -39,5 +36,4 @@ void right(int *x, int *y, int width, int height, struct Cell grid[][width])
         *y = *y + 1;
         return right(x, y, width, height, grid);
     }
-    printf("x = %d, y = %d\n", *x, *y);
 }
