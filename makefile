@@ -1,10 +1,10 @@
 all: exec
 
-mouvement1.o : mouvement1.c mouvement1.h 
-	gcc -c mouvement1.c -o mouvement1.o
-mouvement2.o : mouvement2.c mouvement2.h 
+mouvement.o : mouvement.c mouvement.h 
+	gcc -c mouvement.c -o mouvement.o
+game.o : mouvement2.c mouvement2.h 
 	gcc -c mouvement2.c -o mouvement2.o
-mouvement3.o : mouvement3.c mouvement3.h 
+validation.o : mouvement3.c mouvement3.h 
 	gcc -c mouvement3.c -o mouvement3.o
 mouvement4.o : mouvement4.c mouvement4.h 
 	gcc -c mouvement4.c -o mouvement4.o
