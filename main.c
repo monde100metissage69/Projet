@@ -1,3 +1,10 @@
+#include <stdio.h>
+#include "display.h"
+#include "mouvement.h"
+#include "validation.h"
+#include "game.h"
+
+
 int main()
 {
     int i, X, num_players, rounds, current_round;
