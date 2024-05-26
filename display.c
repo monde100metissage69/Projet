@@ -242,16 +242,3 @@ void place_robots(int height, int width, struct Cell grid[][width], int robots[]
         robots[i][1] = y;
     }
 }
-
-// Check if input is a valid number without spaces
-int is_valid_number(char *str)
-{
-    for (int i = 0; str[i] != '\0'; i++)
-    {
-        if (!isdigit(str[i]))
-        {
-            return 0;
-        }
-    }
-    return 1;
-}
