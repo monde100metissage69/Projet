@@ -1,7 +1,7 @@
 #ifndef VALIDATION_H
 #define VALIDATION_H
 
-#include <stlib.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
 #include <unistd.h> 
