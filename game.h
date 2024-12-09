@@ -1,7 +1,7 @@
 #ifndef GAME_H
 #define GAME_H
 #include <stdio.h>
-#include <stlib.h>
+#include <stdlib.h>
 #include <time.h>
 #include <unistd.h> 
 #include <limits.h>
