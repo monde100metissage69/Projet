@@ -1,7 +1,7 @@
 ifndef DISPLAY_H
 #define DISPLAY_H
 
-#include <stlib.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
 #include <unistd.h> 
