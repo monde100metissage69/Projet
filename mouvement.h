@@ -1,7 +1,7 @@
 #ifndef MOUVEMENT_H
 #define MOUVEMENT_H
 
-#include <stlib.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
 #include <unistd.h> 
