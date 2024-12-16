@@ -3,7 +3,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <time.h>
+#include <string.h>
 #include <unistd.h> 
 #include <limits.h>
 #include <ctype.h>
