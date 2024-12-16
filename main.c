@@ -6,7 +6,7 @@
 #include <ctype.h>
 #include "display.h"
 #include "avl.h"
-#include "validation.h"
+#include "fichier.h"
 #include "game.h"
 
 int main(int argc, char *argv[]) {
