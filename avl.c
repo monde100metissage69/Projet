@@ -1,146 +1,111 @@
 #include "avl.h"
 
-struct Station {
-    int* station;
-    int *capacite;
-    long *consommation;
-};
+typedef struct NoeudAVL {
+    int id_station;                // Identifiant de la station
+    double capacite;               // Capacité en kWh
+    double consommation_totale;    // Somme des consommations
+    int hauteur;                   // Hauteur du nœud
+    struct NoeudAVL *gauche, *droite;
+} NoeudAVL;
 
-struct avl {
-    struct Station *station; 
-    struct avl* fg;
-    struct avl* fd;
-    int equilibre;
-};
-
-typedef avl* parbre;
-
-parbre creerAVL(int station, int capacite, long consommation){
-    parbre nouveau = malloc(sizeof(parbre));
-    if(nouveau == NULL){
-        exit(1);
-    }
-    nouveau->station = station;
-    nouveau->equilibre = 0;
-    nouveau->consommation = consommation;
-    nouveau->capacite = capacite; 
-    nouveau->fg = NULL;
-    nouveau->fd = NULL;
-
-    return nouveau;
-}
-int max(int a, int b){
-    if(a >= b){
-        return a;
-    else  {
-        return b;
-    }
-int min(int a, int b, int c){
-    int min = a;
-
-    if(b < min){
-        min = b;
-    }
-    if(c < min){
-        min = c;
-    }
-    return min;
+// Crée un nouveau nœud
+NoeudAVL* creerNoeud(int id, double capacite, double consommation) {
+    NoeudAVL* noeud = (NoeudAVL*)malloc(sizeof(NoeudAVL));
+    noeud->id_station = id;
+    noeud->capacite = capacite;
+    noeud->consommation_totale = consommation;
+    noeud->hauteur = 1;
+    noeud->gauche = noeud->droite = NULL;
+    return noeud;
 }
 
-parbre rotationGauche(parbre a){
-    parbre pivot;
-    int eq_a, eq_p;
-    pivot = a->fd;
-    a->fd = pivot->fg;
-    pivot->fg = a;
-
-    eq_a = a->equilibre;
-    eq_p = pivot->equilibre;
-
-    a->equilibre = eq_a - max(eq_p, 0) -1;
-    pivot->equilibre = min(eq_a-2, eq_a + eq_p-2, eq_p-1);
-
-    a = pivot;
-    return a;
-
+// Retourne la hauteur d'un nœud
+int obtenirHauteur(NoeudAVL* noeud) {
+    return noeud ? noeud->hauteur : 0;
 }
 
-parbre rotationDroite(parbre a){
-    parbre pivot;
-    int eq_a, eq_p;
-    pivot = a->fg;
-    a->fg = pivot->fd;
-    pivot->fd = a;
-
-    eq_a = a->equilibre;
-    eq_p = pivot->equilibre;
-
-    a->equilibre = eq_a - min(eq_p, 0) +1; 
-    pivot->equilibre = max(eq_a+2, eq_a + eq_p+2, eq_p+1);
-
-    a = pivot;
-    return a;
+// Retourne le facteur d'équilibre
+int obtenirEquilibre(NoeudAVL* noeud) {
+    return noeud ? obtenirHauteur(noeud->gauche) - obtenirHauteur(noeud->droite) : 0;
 }
 
-parbre doubleRotationGauche(parbre a){
-    a->fd = rotationDroite(a->fd);
-    return rotationGauche(a);
+// Effectue une rotation droite
+NoeudAVL* rotationDroite(NoeudAVL* y) {
+    NoeudAVL* x = y->gauche;
+    NoeudAVL* T2 = x->droite;
+
+    x->droite = y;
+    y->gauche = T2;
+
+    y->hauteur = 1 + (obtenirHauteur(y->gauche) > obtenirHauteur(y->droite) ? obtenirHauteur(y->gauche) : obtenirHauteur(y->droite));
+    x->hauteur = 1 + (obtenirHauteur(x->gauche) > obtenirHauteur(x->droite) ? obtenirHauteur(x->gauche) : obtenirHauteur(x->droite));
+
+    return x;
 }
 
-parbre doubleRotationDroite(parbre a){
-    a->fg = rotationGauche(a->fg);
-    return rotationDroite(a);
+// Effectue une rotation gauche
+NoeudAVL* rotationGauche(NoeudAVL* x) {
+    NoeudAVL* y = x->droite;
+    NoeudAVL* T2 = y->gauche;
+
+    y->gauche = x;
+    x->droite = T2;
+
+    x->hauteur = 1 + (obtenirHauteur(x->gauche) > obtenirHauteur(x->droite) ? obtenirHauteur(x->gauche) : obtenirHauteur(x->droite));
+    y->hauteur = 1 + (obtenirHauteur(y->gauche) > obtenirHauteur(y->droite) ? obtenirHauteur(y->gauche) : obtenirHauteur(y->droite));
+
+    return y;
 }
 
-parbre equilibrerAVL(parbre a){
-    if(a->equilibre >= 2){
-        if(a->fd->equilibre >=0){
-            return rotationGauche(a);
-        }
-        else{
-            return doubleRotationGauche(a);
-        }
+// Insère un nœud dans l'AVL
+NoeudAVL* inserer(NoeudAVL* noeud, int id, double capacite, double consommation) {
+    if (!noeud) return creerNoeud(id, capacite, consommation);
+
+    if (id < noeud->id_station)
+        noeud->gauche = inserer(noeud->gauche, id, capacite, consommation);
+    else if (id > noeud->id_station)
+        noeud->droite = inserer(noeud->droite, id, capacite, consommation);
+    else {
+        noeud->consommation_totale += consommation;
+        return noeud;
     }
-    else if(a->equilibre <= -2){
-        if(a->fg->equilibre <= 0){
-            return rotationDroite(a);
-        }
-        else{
-            return doubleRotationDroite(a);
-        }
+
+    noeud->hauteur = 1 + (obtenirHauteur(noeud->gauche) > obtenirHauteur(noeud->droite) ? obtenirHauteur(noeud->gauche) : obtenirHauteur(noeud->droite));
+
+    int equilibre = obtenirEquilibre(noeud);
+
+    if (equilibre > 1 && id < noeud->gauche->id_station)
+        return rotationDroite(noeud);
+
+    if (equilibre < -1 && id > noeud->droite->id_station)
+        return rotationGauche(noeud);
+
+    if (equilibre > 1 && id > noeud->gauche->id_station) {
+        noeud->gauche = rotationGauche(noeud->gauche);
+        return rotationDroite(noeud);
     }
-    return a;
+
+    if (equilibre < -1 && id < noeud->droite->id_station) {
+        noeud->droite = rotationDroite(noeud->droite);
+        return rotationGauche(noeud);
+    }
+
+    return noeud;
 }
-    
-parbre insererAVL(parbre a, int station, int capacite, long consommation, int *h){
-    if(a == NULL){
-        *h = 0;
-        return creerAVL(station, capacite, consommation);
-    }
-    else if(station < a->station){
-        a->fg = insererAVL(a->fg, station, capacite, consommation h);
-        *h = -*h;
-    }
-    else if(station > a->station){
-        a->fd = insererAVL(a->fd, station, capacite, consommation, h);
-    }
-    else{
-        *h = 0;
-        a->consommation += consommation;
-        a->capacite += capacite;
-        return a;
-    }
-    if {
-        if(*h != 0){
-        a->equilibre += *h;
-        a = equilibrerAVL(a); 
-        if(a->equilibre == 0){
-            *h = 0;
-        }
-        else{
-            *h = 1;
-        }
-    }
-    return a;
+
+// Parcourt l'AVL et écrit les résultats
+void ecrireResultats(NoeudAVL* racine, FILE* sortie) {
+    if (!racine) return;
+    ecrireResultats(racine->gauche, sortie);
+    fprintf(sortie, "%d;%lf;%lf\n", racine->id_station, racine->capacite, racine->consommation_totale);
+    ecrireResultats(racine->droite, sortie);
+}
+
+// Libère la mémoire de l'AVL
+void libererArbre(NoeudAVL* racine) {
+    if (!racine) return;
+    libererArbre(racine->gauche);
+    libererArbre(racine->droite);
+    free(racine);
 }
 
