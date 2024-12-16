@@ -1,41 +1,64 @@
-#include "mouvement.h"
+#include "rotation.h"
 
-// Move the robot up if possible
-void up(int *x, int *y, int width, struct Cell grid[][width])
-{
-    if (*x - 1 >= 0 && grid[*x - 1][*y].bottom == 0 && grid[*x][*y].top == 0)
-    {
-        *x = *x - 1;
-        return up(x, y, width, grid);
-    }
+parbre rotationGauche(parbre a){
+    parbre pivot;
+    int eq_a, eq_p;
+    pivot = a->fd;
+    a->fd = pivot->fg;
+    pivot->fg = a;
+
+    eq_a = a->equilibre;
+    eq_p = pivot->equilibre;
+
+    a->equilibre = eq_a - max(eq_p, 0) -1;
+    pivot->equilibre = min(eq_a-2, eq_a + eq_p-2, eq_p-1);
+
+    a = pivot;
+    return a;
+
+}
+parbre rotationDroite(parbre a){
+    parbre pivot;
+    int eq_a, eq_p;
+    pivot = a->fg;
+    a->fg = pivot->fd;
+    pivot->fd = a;
+
+    eq_a = a->equilibre;
+    eq_p = pivot->equilibre;
+
+    a->equilibre = eq_a - min2(eq_p, 0) +1; 
+    pivot->equilibre = max2(eq_a+2, eq_a + eq_p+2, eq_p+1);
+
+    a = pivot;
+    return a;
+}
+parbre doubleRotationGauche(parbre a){
+    a->fd = rotationDroite(a->fd);
+    return rotationGauche(a);
 }
 
-// Move the robot down if possible
-void down(int *x, int *y, int width, int height, struct Cell grid[][width])
-{
-    if (*x + 1 < height && grid[*x + 1][*y].top == 0 && grid[*x][*y].bottom == 0)
-    {
-        *x = *x + 1;
-        return down(x, y, width, height, grid);
-    }
+parbre doubleRotationDroite(parbre a){
+    a->fg = rotationGauche(a->fg);
+    return rotationDroite(a);
 }
 
-// Move the robot left if possible
-void left(int *x, int *y, int height, struct Cell grid[][height])
-{
-    if (*y - 1 >= 0 && grid[*x][*y - 1].right == 0 && grid[*x][*y].left == 0)
-    {
-        *y = *y - 1;
-        return left(x, y, height, grid);
-    }
-}
 
-// Move the robot right if possible
-void right(int *x, int *y, int width, int height, struct Cell grid[][width])
-{
-    if (*y + 1 < width && grid[*x][*y + 1].left == 0 && grid[*x][*y].right == 0)
-    {
-        *y = *y + 1;
-        return right(x, y, width, height, grid);
+parbre equilibrerAVL(parbre a){
+    if(a->equilibre >= 2){
+        if(a-> 0){fd->equilibre >=0){
+            return rotationGauche(a);
+        }
+        else{
+            return doubleRotationGauche(a);
+        }
     }
-}
+    else if(a->equilibre <= -2){
+        if(a->fg->equilibre <= 0){
+            return rotationDroite(a);
+        }
+        else{
+            return doubleRotationDroite(a);
+        }
+    }
+    return a;
