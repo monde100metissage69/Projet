@@ -3,11 +3,13 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <time.h>
+#include <string.h>
 #include <unistd.h> 
 #include <limits.h>
 #include <ctype.h>
 
-int is_valid_number(char *str);
+void lectureFichier(const char *CSV, parbre *a);
+void ecrireInOrder(parbre a, FILE *fichier);
+void exporter(parbre a, const char *CSV);
 
 #endif
