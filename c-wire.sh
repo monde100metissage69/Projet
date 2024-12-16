@@ -1,4 +1,4 @@
-#include "game.h"
+#include "c-wire.sh"
 
 #!/bin/bash
 
@@ -14,7 +14,7 @@ if [[ "$1" == "-h" || $# -lt 3 ]]; then
 fi
 
 # Paramètres
-input_file="$1"
+fichier_entree="$1"
 type_station="$2"
 type_consommateur="$3"
 id_centrale="$4"
@@ -27,7 +27,7 @@ if [[ "$type_station" == "hvb" && "$type_consommateur" != "comp" ]] ||
 fi
 
 # Vérification de l'existence du fichier
-if [[ ! -f "$input_file" ]]; then
+if [[ ! -f "$fichier_entree" ]]; then
     echo "Erreur : Fichier d'entrée introuvable."
     exit 1
 fi
@@ -36,7 +36,7 @@ fi
 mkdir -p tmp graphs
 
 # Compilation du programme C
-if [[ ! -f ./codeC/main ]]; then
+if [[ ! -f ./codeC/principal ]]; then
     echo "Compilation du programme C..."
     make -C codeC
     if [[ $? -ne 0 ]]; then
@@ -46,46 +46,46 @@ if [[ ! -f ./codeC/main ]]; then
 fi
 
 # Filtrage des données
-filtered_file="tmp/filtered_data.csv"
-awk -F';' -v station="$type_station" -v consumer="$type_consommateur" -v central="$id_centrale" '
+fichier_filtre="tmp/donnees_filtrees.csv"
+awk -F';' -v station="$type_station" -v consommateur="$type_consommateur" -v centrale="$id_centrale" '
     BEGIN {
         OFS = ";"
     }
     {
-        if (station == "hvb" && $2 != "-" && consumer == "comp") {
+        if (station == "hvb" && $2 != "-" && consommateur == "comp") {
             print $1, $2, "-", "-", $5, "-", $7, $8
         }
-        else if (station == "hva" && $3 != "-" && consumer == "comp") {
+        else if (station == "hva" && $3 != "-" && consommateur == "comp") {
             print $1, "-", $3, "-", $5, "-", $7, $8
         }
-        else if (station == "lv" && $4 != "-" && consumer != "") {
-            print $1, "-", "-", $4, "-", (consumer == "comp" ? $5 : $6), $7, $8
+        else if (station == "lv" && $4 != "-" && consommateur != "") {
+            print $1, "-", "-", $4, "-", (consommateur == "comp" ? $5 : $6), $7, $8
         }
     }
-' "$input_file" > "$filtered_file"
+' "$fichier_entree" > "$fichier_filtre"
 
-if [[ ! -s "$filtered_file" ]]; then
+if [[ ! -s "$fichier_filtre" ]]; then
     echo "Erreur : Aucun résultat correspondant aux critères."
     exit 1
 fi
 
 # Exécution du programme C
-output_file="tmp/results.csv"
-./codeC/main "$filtered_file" "$output_file"
+fichier_sortie="tmp/resultats.csv"
+./codeC/principal "$fichier_filtre" "$fichier_sortie"
 if [[ $? -ne 0 ]]; then
     echo "Erreur : Échec du traitement par le programme C."
     exit 1
 fi
 
 # Tri des résultats
-sorted_file="tmp/sorted_results.csv"
-sort -t';' -k7 -n "$output_file" > "$sorted_file"
+fichier_trie="tmp/resultats_tries.csv"
+sort -t';' -k7 -n "$fichier_sortie" > "$fichier_trie"
 
 # Gestion des postes LV pour lv all
 if [[ "$type_station" == "lv" && "$type_consommateur" == "all" ]]; then
-    top10_file="tmp/lv_all_minmax.csv"
-    head -n 10 "$sorted_file" > "$top10_file"
-    tail -n 10 "$sorted_file" >> "$top10_file"
+    fichier_top10="tmp/lv_all_minmax.csv"
+    head -n 10 "$fichier_trie" > "$fichier_top10"
+    tail -n 10 "$fichier_trie" >> "$fichier_top10"
 
     # Bonus : Création du graphique
     gnuplot -e "
@@ -95,9 +95,10 @@ if [[ "$type_station" == "lv" && "$type_consommateur" == "all" ]]; then
         set style fill solid;
         set boxwidth 0.9;
         set xtics rotate;
-        plot '$top10_file' using 2:xtic(1) title 'Consommation (kWh)'"
+        plot '$fichier_top10' using 2:xtic(1) title 'Consommation (kWh)'"
 fi
 
 # Fin
-echo "Traitement terminé. Résultats disponibles dans $sorted_file."
+echo "Traitement terminé. Résultats disponibles dans $fichier_trie."
 exit 0
+
