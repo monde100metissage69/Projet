@@ -1,5 +1,5 @@
-#ifndef MOUVEMENT_H
-#define MOUVEMENT_H
+#ifndef ROTATION_H
+#define ROTATION_H
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -7,9 +7,10 @@
 #include <unistd.h> 
 #include <limits.h>
 #include <ctype.h>
-void up(int *x, int *y, int width, struct Cell grid[][width]);
-void down(int *x, int *y, int width, int height, struct Cell grid[][width]);
-void left(int *x, int *y, int height, struct Cell grid[][height]);
-void right(int *x, int *y, int width, int height, struct Cell grid[][width]);
+
+parbre rotationGauche(parbre a);
+parbre rotationDroite(parbre a);
+parbre doubleRotationGauche(parbre a);
+parbre doubleRotationDroite(parbre a);
 
 #endif
