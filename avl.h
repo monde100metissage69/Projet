@@ -8,5 +8,10 @@
 
 struct Station;
 struct avl;
+avl *creerAVL(int s, int capacite, long consommation)
+rotationGauche(avl* a)
+rotationDroite(avl *a)
+doubleRotationGauche(avl* a)
+
 
 #endif
