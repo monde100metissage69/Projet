@@ -1,6 +1,6 @@
 #include "fichier.h"
 
-void lectureFichier(const char *CSV, parbre *a) {
+ void lectureFichier(const char *CSV, avl **a){
     FILE *fichier = fopen(CSV, "r");
     if (!fichier) {
         exit(1);
@@ -8,8 +8,8 @@ void lectureFichier(const char *CSV, parbre *a) {
     char Donnee[256];
     int h = 0;
     fgets(Donnee, sizeof(Donnee), fichier);
-    while (fgets(Donnee, sizeof(Donnee, fichier)) {
-        char *token = strtok(ligne, ";");
+    while (fgets(Donnee, sizeof(Donnee), fichier)){
+        char *token = strtok(Donnee, ";");
         int idstation = atoi(token);
         token = strtok(NULL, ";");
         int capacite;
@@ -31,22 +31,24 @@ void lectureFichier(const char *CSV, parbre *a) {
     }
     fclose(fichier);
 }
-void ecrireInOrder(parbre a, FILE *fichier) {
+void ecrireInOrder(avl* a, FILE *fichier) {
     if (a != NULL) {
         ecrireInOrder(a->fg, fichier);
-        fprintf(fichier, "%d;%d;%ld", *(a->station->station), *(a->station->capacite), *(a->station->consommation));
+        fprintf(fichier, "%d;%d;%ld",  "station;capacite;consommation");
         ecrireInOrder(a->fd, fichier);
     }
 }
-void exporter(parbre a, const char *CSV) {
+void exporter(avl* a, const char *CSV) {
     FILE *fichier = fopen(CSV, "w");
     if (!fichier) {
         exit(1);
     }
-    fprintf(fichier, "station; capacite; consommation");
+    fprintf(fichier, "%d;%d;%ld\n", a->s.id, a->s.capacite, a->s.consommation);
     ecrireInOrder(a, fichier);
     fclose(fichier);
 }
-void lectureCSV(const char *chemincsv, const char *typestation, const char *typeconsommateur, const char *idcentrale);
-void traitement();
-void exporter();
+void lectureCSV(const char *chemincsv, const char *typestation, const char *typeconsommateur, const char *idcentrale){
+  avl *a = NULL;
+    lectureFichier(chemincsv, &a);
+    exporter(a, "output.csv");
+}
