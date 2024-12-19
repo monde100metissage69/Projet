@@ -1,12 +1,10 @@
-#ifndef VALIDATION_H
-#define VALIDATION_H
+#ifndef FICHIER_H
+#define FICHIER_H
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <unistd.h> 
-#include <limits.h>
-#include <ctype.h>
+
 
 void lectureFichier(const char *CSV, parbre *a);
 void ecrireInOrder(parbre a, FILE *fichier);
