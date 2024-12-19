@@ -1,17 +1,15 @@
 all: exec
-display.o : display.c display.h 
-	gcc -c display.c -o display.o
-mouvement.o : mouvement.c mouvement.h 
-	gcc -c mouvement.c -o mouvement.o
-game.o : game.c game.h 
-	gcc -c game.c -o game.o
-validation.o : validation.c validation.h 
-	gcc -c validation.c -o validation.o		
-main.o : main.c display.h mouvement.h game.h validation.h 
+fichier.o : fichier.c fichier.h 
+	gcc -c fichier.c -o fichier.o
+
+avl.o : avl.c avl.h 
+	gcc -c avl.c -o avl.o
+
+main.o : main.c fichier.h avl.h
 	gcc -c main.c -o main.o
 
-exec : main.o mouvement.o game.o validation.o  display.o
-	gcc main.o mouvement.o game.o validation.o display.o -o exec
+exec : main.o fichier.o avl.o 
+	gcc main.o avl.o fichier.o -o exec
 
 clean:
 	rm -f *.o
