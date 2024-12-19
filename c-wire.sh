@@ -1,5 +1,3 @@
-#include "c-wire.sh"
-
 #!/bin/bash
 
 # Vérification des paramètres
@@ -38,7 +36,10 @@ mkdir -p tmp graphs
 # Compilation du programme C
 if [[ ! -f ./codeC/principal ]]; then
     echo "Compilation du programme C..."
-    make -C codeC
+    cd codeC
+    make clean
+    make all
+    cd ..
     if [[ $? -ne 0 ]]; then
         echo "Erreur : Échec de la compilation du programme C."
         exit 1
@@ -101,4 +102,3 @@ fi
 # Fin
 echo "Traitement terminé. Résultats disponibles dans $fichier_trie."
 exit 0
-
