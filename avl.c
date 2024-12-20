@@ -1,16 +1,5 @@
 #include "avl.h"
-typedef struct Station {
-    int id;
-    int capacite;
-    long consommation;
-} Station;
 
-typedef struct avl {
-    Station s; 
-    struct avl* fg;
-    struct avl* fd;
-    int equilibre;
-} avl;
 
 avl * creerAVL(int s, int capacite, long consommation){
     avl* nouveau = malloc(sizeof(avl));
@@ -33,7 +22,7 @@ int max(int a, int b){
     else {
         return b;
     }
-}
+}cwire_exec;
 int min(int a, int b, int c){
     int min = a;
 
