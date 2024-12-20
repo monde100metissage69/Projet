@@ -9,12 +9,6 @@ Le projet C-Wire a pour objectif d’analyser un réseau de distribution d’él
     Calcul de la consommation totale par station, comparaison avec les capacités et détection des surcharges ou sous-charges.
     Génération de fichiers de résultats structurés et triés, avec une possibilité de visualisation graphique (en option).
 
--Instructions:
-
-    Compilation : Lancez make dans le dossier codeC pour compiler le programme.
-    Utilisation : Exécutez le script c-wire.sh avec les options nécessaires (détails disponibles via l’option -h).
-    Sorties : Les résultats sont enregistrés sous forme de fichiers CSV dans le dossier tests.
-
 -Équipe:
     Abderahmane ZERARGUI
     BENYOUCEF Loqman
