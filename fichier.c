@@ -1,54 +1,52 @@
-#include "fichier.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
- void lectureFichier(const char *CSV, avl **a){
-    FILE *fichier = fopen(CSV, "r");
-    if (!fichier) {
+#include "fichier.h"
+#include "avl.h"
+
+Station* creerStation(int id, int capacite, long consommation){
+       Station *s;
+       s->id = idstation;
+       s->capacite = capacite;
+       s->consommation = consommation;
+       a = insererAVL(a, *s, capacite, consommation, &h);
+       return s;
+}
+void lectureFichier(const char *nomFichier, avl *a) {
+    FILE *fichier = fopen(nomFichier, "r");
+    if (fichier == NULL) {
         exit(1);
     }
-    char Donnee[256];
-    int h = 0;
-    fgets(Donnee, sizeof(Donnee), fichier);
-    while (fgets(Donnee, sizeof(Donnee), fichier)){
-        char *token = strtok(Donnee, ";");
-        int idstation = atoi(token);
-        token = strtok(NULL, ";");
-        int capacite;
-        if (strcmp(token, "-") != 0) {
-            capacite = atoi(token); 
+    char ligne[150];
+    int idstation;
+    int capacite;
+    long consommation;
+    if (fgets(ligne, 150, fichier) == NULL){
+        fclose(fichier);
+        printf("Erreur le fichier est vide :");
+        exit(1);
+    }
+    while (fgets(ligne, 150, fichier) != NULL) {
+        if (sscanf(ligne, "%d;%d;%ld", &idstation, &capacite, &consommation) == 3) {
+            if (capacite < 0){ 
+                capacite = 0;
+            }
+            if (consommation < 0){
+                consommation = 0;
+            }
+            avl *noeud = rechercherAVL(a, idstation);
+            if (noeud != NULL){
+                noeud->s.capacite = capacite;
+                noeud->s.consommation += consommation;
+            } 
+            else{
+                Station *s = creerStation(idstation, capacite, consommation);
+            }
         } 
         else {
-            capacite = 0;
-        }
-        long consommation = 0;
-        while ((token = strtok(NULL, ";")) != NULL) {
-            if (strcmp(token, "-") != 0) {
-                consommation += atol(token);
-            }
-        }
-        if (idstation > 0) {
-            *a = insererAVL(*a, idstation, capacite, consommation, &h);
+            printf("Erreur la ligne est invalide : %s", ligne);
         }
     }
     fclose(fichier);
-}
-void ecrireInOrder(avl* a, FILE *fichier) {
-    if (a != NULL) {
-        ecrireInOrder(a->fg, fichier);
-        fprintf(fichier, "%d;%d;%ld",  "station;capacite;consommation");
-        ecrireInOrder(a->fd, fichier);
-    }
-}
-void exporter(avl* a, const char *CSV) {
-    FILE *fichier = fopen(CSV, "w");
-    if (!fichier) {
-        exit(1);
-    }
-    fprintf(fichier, "%d;%d;%ld\n", a->s.id, a->s.capacite, a->s.consommation);
-    ecrireInOrder(a, fichier);
-    fclose(fichier);
-}
-void lectureCSV(const char *chemincsv, const char *typestation, const char *typeconsommateur, const char *idcentrale){
-  avl *a = NULL;
-    lectureFichier(chemincsv, &a);
-    exporter(a, "output.csv");
 }
