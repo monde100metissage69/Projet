@@ -81,13 +81,11 @@ elif [[ "$station" == "hva" && "$consommation" == "comp" ]]; then
     temp="$tmp/temp_${variable_case}.csv"
     fichier="tests/${variable_case}.csv"
 
-    if [[ $3 != "-" && $5 != "-" ]]; then
-        awk -F";" '{if ($3 != "-" && $5 != "-") print $3 ";" $7 ";" $8}' "$chemin" > "$temp"
+    if awk '($2 != "-" && $5 != "-") || ($2 != "-" && $7 != "-")' input/c-wire_v00.dat > /dev/null; then
+        awk '{print $2 ";" $7 ";" $8}' c-wire_v00.dat > "$temp"
         sed -i 's/-/2/g' "$temp"  # Remplacer les tirets par 2
-        echo "Données extraites pour hva-comp"
-    else
-    echo "Données non valides pour hva-comp"
-    fi
+        echo "Données extraites pour hab-comp"
+        fi
 
     # Lancer ton programme ici
     ./codeC/c_wire "$temp" "$fichier" > /dev/null
@@ -100,13 +98,11 @@ elif [[ "$station" == "lv" && "$consommation" == "comp" ]]; then
     temp="$tmp/temp_${variable_case}.csv"
     fichier="tests/${variable_case}.csv"
 
-    if [[ $4 != "-" && $5 != "-" ]]; then
-        awk -F";" '{if ($4 != "-" && $5 != "-") print $4 ";" $7 ";" $8}' "$chemin" > "$temp"
-        sed -i 's/-/2/g' "$temp"  # Remplacer les tirets par 
+     if awk '($2 != "-" && $5 != "-") || ($2 != "-" && $7 != "-")' input/c-wire_v00.dat > /dev/null; then
+        awk '{print $2 ";" $7 ";" $8}' c-wire_v00.dat > "$temp"
+        sed -i 's/-/2/g' "$temp"  # Remplacer les tirets par 2
         echo "Données extraites pour lv-comp"
-    else
-        echo "Données non valides pour lv-comp"
-    fi
+        fi
 
     # Lancer ton programme ici
     ./codeC/c_wire "$temp" "$fichier" > /dev/null
