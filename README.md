@@ -9,8 +9,12 @@ Le projet C-Wire a pour objectif d’analyser un réseau de distribution d’él
     Calcul de la consommation totale par station, comparaison avec les capacités et détection des surcharges ou sous-charges.
     Génération de fichiers de résultats structurés et triés, avec une possibilité de visualisation graphique (en option).
 
+Pour lancer le code, il vous suffit d'ouvrir le terminal et d'écrire la commande suivante :
+./c-wire.sh input/c-wire_v25.dat (la station) (compagnie ou particulier)
+Les données trier seront ainsi stockés dans un dossier crée par le script shell.
+
 -Équipe:
-    Abderahmane ZERARGUI
+    ZERARGUI Abderrahmane
     BENYOUCEF Loqman
     HAIDAR Ilyas
 
