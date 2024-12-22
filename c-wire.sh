@@ -81,8 +81,8 @@ elif [[ "$station" == "hva" && "$consommation" == "comp" ]]; then
     temp="$tmp/temp_${variable_case}.csv"
     fichier="tests/${variable_case}.csv"
 
-    if awk '($2 != "-" && $5 != "-") || ($2 != "-" && $7 != "-")' input/c-wire_v00.dat > /dev/null; then
-        awk '{print $2 ";" $7 ";" $8}' c-wire_v00.dat > "$temp"
+    if awk '($3 != "-" && $5 != "-") || ($3 != "-" && $7 != "-")' input/c-wire_v00.dat > /dev/null; then
+        awk '{print $3 ";" $7 ";" $8}' c-wire_v00.dat > "$temp"
         sed -i 's/-/2/g' "$temp"  # Remplacer les tirets par 2
         echo "Données extraites pour hab-comp"
         fi
@@ -98,8 +98,23 @@ elif [[ "$station" == "lv" && "$consommation" == "comp" ]]; then
     temp="$tmp/temp_${variable_case}.csv"
     fichier="tests/${variable_case}.csv"
 
-     if awk '($2 != "-" && $5 != "-") || ($2 != "-" && $7 != "-")' input/c-wire_v00.dat > /dev/null; then
-        awk '{print $2 ";" $7 ";" $8}' c-wire_v00.dat > "$temp"
+     if awk '($4 != "-" && $5 != "-") || ($4 != "-" && $7 != "-")' input/c-wire_v00.dat > /dev/null; then
+        awk '{print $4 ";" $7 ";" $8}' c-wire_v00.dat > "$temp"
+        sed -i 's/-/2/g' "$temp"  # Remplacer les tirets par 2
+        echo "Données extraites pour lv-comp"
+        fi
+    # Lancer ton programme ici
+    ./codeC/c_wire "$temp" "$fichier" > /dev/null
+    echo "Programme exécuté avec succès."
+    sort -t';' -k1,1 -k2,2 "$temp" > "$fichier"
+    echo "Fichier final sauvegardé dans : $fichier"
+elif [[ "$station" == "lv" && "$consommation" == "indiv" ]]; then
+    variable_case="lv_indiv"
+    temp="$tmp/temp_${variable_case}.csv"
+    fichier="tests/${variable_case}.csv"
+
+     if awk '($4 != "-" && $6 != "-") || ($4 != "-" && $7 != "-")' input/c-wire_v00.dat > /dev/null; then
+        awk '{print $4 ";" $7 ";" $8}' c-wire_v00.dat > "$temp"
         sed -i 's/-/2/g' "$temp"  # Remplacer les tirets par 2
         echo "Données extraites pour lv-comp"
         fi
@@ -109,19 +124,23 @@ elif [[ "$station" == "lv" && "$consommation" == "comp" ]]; then
     echo "Programme exécuté avec succès."
     sort -t';' -k1,1 -k2,2 "$temp" > "$fichier"
     echo "Fichier final sauvegardé dans : $fichier"
-
 elif [[ "$station" == "lv" && "$consommation" == "all" ]]; then
     variable_case="lv_all"
     temp="$tmp/temp_${variable_case}.csv"
     fichier="tests/${variable_case}.csv"
 
-    if [[ $4 != "-" ]]; then
-        awk -F";" '{if ($4 != "-" && ($5 != "-" || $6 != "-" || $7 != "-")) print $4 ";" $7 ";" $8}' "$chemin" > "$temp"
+     if awk '($4 != "-" && $5 != "-") || ($4 != "-" && $6 != "-")' || '($4 != "-" && $7 != "-")' input/c-wire_v00.dat > /dev/null; then
+        awk '{print $4 ";" $7 ";" $8}' c-wire_v00.dat > "$temp"
         sed -i 's/-/2/g' "$temp"  # Remplacer les tirets par 2
         echo "Données extraites pour lv-all"
-    else
-        echo "Données non valides pour lv-all"
-    fi
+        fi
+
+    # Lancer ton programme ici
+    ./codeC/c_wire "$temp" "$fichier" > /dev/null
+    echo "Programme exécuté avec succès."
+    sort -t';' -k1,1 -k2,2 "$temp" > "$fichier"
+    echo "Fichier final sauvegardé dans : $fichier"
+    
 
     # Lancer ton programme ici
     ./codeC/w_wire "$temp" "$fichier" > /dev/null
