@@ -1,17 +1,45 @@
-all: exec
-fichier.o : fichier.c fichier.h 
-	gcc -c fichier.c -o fichier.o
+# Nom de l'exécutable
+EXEC = c_wire
 
-avl.o : avl.c avl.h 
-	gcc -c avl.c -o avl.o
+# Répertoires
+SRC_DIR = .
+INCLUDE_DIR = ./include
 
-main.o : main.c fichier.h avl.h
-	gcc -c main.c -o main.o
+# Fichiers source
+SRCS = $(SRC_DIR)/avl.c $(SRC_DIR)/fichier.c $(SRC_DIR)/main.c
 
-exec : main.o fichier.o avl.o 
-	gcc main.o avl.o fichier.o -o exec
+# Fichiers objets (générés automatiquement)
+OBJS = $(SRCS:.c=.o)
 
+# Fichiers d'en-têtes
+HEADERS = $(INCLUDE_DIR)/avl.h $(INCLUDE_DIR)/fichier.h
+
+# Compilateur et options
+CC = gcc
+CFLAGS = -Wall -g -I$(INCLUDE_DIR)
+
+# Règle par défaut : construire l'exécutable
+all: $(EXEC)
+
+# Règle pour créer l'exécutable
+
+$(EXEC): $(OBJS)
+		$(CC) $(OBJS) -o $(EXEC)
+
+# Règles pour chaque fichier .o (respect de l'ordre)
+
+$(SRC_DIR)/avl.o: $(SRC_DIR)/avl.c $(INCLUDE_DIR)/avl.h
+		$(CC) $(CFLAGS) -c $< -o $@
+
+$(SRC_DIR)/fichier.o: $(SRC_DIR)/fichier.c $(INCLUDE_DIR)/fichier.h $(INCLUDE_DIR)/avl.h
+		$(CC) $(CFLAGS) -c $< -o $@
+
+$(SRC_DIR)/main.o: $(SRC_DIR)/main.c $(HEADERS)
+		$(CC) $(CFLAGS) -c $< -o $@
+
+# Nettoyage des fichiers objets et de l'exécutable
 clean:
-	rm -f *.o
-	rm -f exec
-	
+		rm -f $(OBJS) $(EXEC)
+
+# Règle pour tout recompiler
+rebuild: clean all
