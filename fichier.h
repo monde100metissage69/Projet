@@ -5,9 +5,9 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "avl.h"
 
-void lectureFichier(const char *CSV, parbre *a);
-void ecrireInOrder(parbre a, FILE *fichier);
-void exporter(parbre a, const char *CSV);
+Station* creerStation(int id, int capacite, long consommation);
+void lectureFichier(const char *nomFichier, avl *a);
 
 #endif
