@@ -1,104 +1,142 @@
 #!/bin/bash
+# Timer global
+lancement_script_temps=$(date +%s)  # Capture the start time in seconds
 
-# Vérification des paramètres
-if [[ "$1" == "-h" || $# -lt 3 ]]; then
-    echo "Usage : $0 <chemin_fichier> <type_station> <type_consommateur> [id_centrale]"
-    echo "  <chemin_fichier> : Chemin vers le fichier CSV d'entrée."
-    echo "  <type_station> : hvb | hva | lv"
-    echo "  <type_consommateur> : comp | indiv | all"
-    echo "  [id_centrale] : (optionnel) Identifiant de la centrale."
-    echo "  Options interdites : hvb indiv, hvb all, hva indiv, hva all."
+# Vérification du nombre d'arguments
+if [ $# -ne 3 ]; then # Si le nombre d'arguments est incorrect
+    echo "Usage : $0 <chemin> <station> <consommation>"
     exit 1
 fi
 
-# Paramètres
-fichier_entree="$1"
-type_station="$2"
-type_consommateur="$3"
-id_centrale="$4"
+chemin=$1 # Premier argument
+station=$2 # Deuxième argument
+consommation=$3 # Troisième argument
 
-# Vérification des options interdites
-if [[ "$type_station" == "hvb" && "$type_consommateur" != "comp" ]] ||
-   [[ "$type_station" == "hva" && "$type_consommateur" != "comp" ]]; then
-    echo "Erreur : Les options hvb indiv, hvb all, hva indiv, hva all sont interdites."
-    exit 1
+if [ ! -f "$cwire" ]; then # Si le chemin est incorrect
+    echo "Erreur : $chemin est incorrect"
+    exit 2
 fi
 
-# Vérification de l'existence du fichier
-if [[ ! -f "$fichier_entree" ]]; then
-    echo "Erreur : Fichier d'entrée introuvable."
-    exit 1
+if [[ "$station" != "hvb" && "$station" != "hva" && "$station" != "lv" ]]; then # Si le type de station est incorrect
+    echo "Erreur : Le type de station $station est incorrect"
+    exit 3
 fi
 
-# Création des dossiers nécessaires
-mkdir -p tmp graphs
+if [[ "$consommation" != "comp" && "$consommation" != "indiv" && "$consommation" != "all" ]]; then # Si le type de consommation est incorrect
+    echo "Erreur : Le type de consommation $consommation est incorrect"
+    exit 4
 
-# Compilation du programme C
-if [[ ! -f ./codeC/principal ]]; then
-    echo "Compilation du programme C..."
+fi
+
+# Vérification de l'existence du programme à exécuter
+
+exec="codeC/c_wire"
+
+if [[ ! -f "$exec" ]]; then # Si le programme n'existe pas
+    echo "Erreur : $exec n'existe pas. Compilation..."
     cd codeC
     make clean
     make all
     cd ..
-    if [[ $? -ne 0 ]]; then
-        echo "Erreur : Échec de la compilation du programme C."
-        exit 1
+
+    if [[ ! -f "$exec" ]]; then
+        echo "Erreur : $exec n'a pas pu être compilé."
+        exit 5
     fi
 fi
 
-# Filtrage des données
-fichier_filtre="tmp/donnees_filtrees.csv"
-awk -F';' -v station="$type_station" -v consommateur="$type_consommateur" -v centrale="$id_centrale" '
-    BEGIN {
-        OFS = ";"
-    }
-    {
-        if (station == "hvb" && $2 != "-" && consommateur == "comp") {
-            print $1, $2, "-", "-", $5, "-", $7, $8
-        }
-        else if (station == "hva" && $3 != "-" && consommateur == "comp") {
-            print $1, "-", $3, "-", $5, "-", $7, $8
-        }
-        else if (station == "lv" && $4 != "-" && consommateur != "") {
-            print $1, "-", "-", $4, "-", (consommateur == "comp" ? $5 : $6), $7, $8
-        }
-    }
-' "$fichier_entree" > "$fichier_filtre"
+# Vérification et création du répertoire temporaire
 
-if [[ ! -s "$fichier_filtre" ]]; then
-    echo "Erreur : Aucun résultat correspondant aux critères."
-    exit 1
+tmp="tmp"
+
+if [[ ! -d "$tmp" ]]; then # Si le répertoire n'existe pas
+    echo "Erreur : $tmp n'existe pas. Création du répertoire."
+    mkdir "$tmp"
+else
+    rm -rf "$tmp/*" # Si le répertoire existe, nettoyage des fichiers temporaires
 fi
 
-# Exécution du programme C
-fichier_sortie="tmp/resultats.csv"
-./codeC/principal "$fichier_filtre" "$fichier_sortie"
-if [[ $? -ne 0 ]]; then
-    echo "Erreur : Échec du traitement par le programme C."
-    exit 1
-fi
+# Traitement des différents cas
 
-# Tri des résultats
-fichier_trie="tmp/resultats_tries.csv"
-sort -t';' -k7 -n "$fichier_sortie" > "$fichier_trie"
+if [[ "$station" == "hvb" && "$consommation" == "comp" ]]; then
+    variable_case="hvb_comp"
+    temp="$tmp/temp_${variable_case}.csv"
+    fichier="tests/${variable_case}.csv"
+        # Extraction des colonnes pertinentes et remplacement des tirets par 2
+       if awk '($2 != "-" && $5 != "-") || ($2 != "-" && $7 != "-")' input/c-wire_v00.dat > /dev/null; then
+        awk '{print $2 ";" $7 ";" $8}' c-wire_v00.dat > "$temp"
+        sed -i 's/-/2/g' "$temp"  # Remplacer les tirets par 2
+        echo "Données extraites pour hvb-comp"
+        fi
+    # Lancer ton programme ici
 
-# Gestion des postes LV pour lv all
-if [[ "$type_station" == "lv" && "$type_consommateur" == "all" ]]; then
-    fichier_top10="tmp/lv_all_minmax.csv"
-    head -n 10 "$fichier_trie" > "$fichier_top10"
-    tail -n 10 "$fichier_trie" >> "$fichier_top10"
+    ./codeC/c_wire "$temp" "$fichier" > /dev/null
+    echo "Programme exécuté avec succès."
+    # Trier et sauvegarder dans le fichier final
+    sort -t';' -k1,1 -k2,2 "$temp" > "$fichier"
+    echo "Fichier final sauvegardé dans : $fichier"
 
-    # Bonus : Création du graphique
-    gnuplot -e "
-        set terminal png size 800,600;
-        set output 'graphs/lv_all_minmax.png';
-        set style data histogram;
-        set style fill solid;
-        set boxwidth 0.9;
-        set xtics rotate;
-        plot '$fichier_top10' using 2:xtic(1) title 'Consommation (kWh)'"
-fi
+elif [[ "$station" == "hva" && "$consommation" == "comp" ]]; then
+    variable_case="hva_comp"
+    temp="$tmp/temp_${variable_case}.csv"
+    fichier="tests/${variable_case}.csv"
 
-# Fin
-echo "Traitement terminé. Résultats disponibles dans $fichier_trie."
-exit 0
+    if [[ $3 != "-" && $5 != "-" ]]; then
+        awk -F";" '{if ($3 != "-" && $5 != "-") print $3 ";" $7 ";" $8}' "$chemin" > "$temp"
+        sed -i 's/-/2/g' "$temp"  # Remplacer les tirets par 2
+        echo "Données extraites pour hva-comp"
+    else
+    echo "Données non valides pour hva-comp"
+    fi
+
+    # Lancer ton programme ici
+    ./codeC/c_wire "$temp" "$fichier" > /dev/null
+    echo "Programme exécuté avec succès."
+    sort -t';' -k1,1 -k2,2 "$temp" > "$fichier"
+    echo "Fichier final sauvegardé dans : $fichier"
+
+elif [[ "$station" == "lv" && "$consommation" == "comp" ]]; then
+    variable_case="lv_comp"
+    temp="$tmp/temp_${variable_case}.csv"
+    fichier="tests/${variable_case}.csv"
+
+    if [[ $4 != "-" && $5 != "-" ]]; then
+        awk -F";" '{if ($4 != "-" && $5 != "-") print $4 ";" $7 ";" $8}' "$chemin" > "$temp"
+        sed -i 's/-/2/g' "$temp"  # Remplacer les tirets par 
+        echo "Données extraites pour lv-comp"
+    else
+        echo "Données non valides pour lv-comp"
+    fi
+
+    # Lancer ton programme ici
+    ./codeC/c_wire "$temp" "$fichier" > /dev/null
+    echo "Programme exécuté avec succès."
+    sort -t';' -k1,1 -k2,2 "$temp" > "$fichier"
+    echo "Fichier final sauvegardé dans : $fichier"
+
+elif [[ "$station" == "lv" && "$consommation" == "all" ]]; then
+    variable_case="lv_all"
+    temp="$tmp/temp_${variable_case}.csv"
+    fichier="tests/${variable_case}.csv"
+
+    if [[ $4 != "-" ]]; then
+        awk -F";" '{if ($4 != "-" && ($5 != "-" || $6 != "-" || $7 != "-")) print $4 ";" $7 ";" $8}' "$chemin" > "$temp"
+        sed -i 's/-/2/g' "$temp"  # Remplacer les tirets par 2
+        echo "Données extraites pour lv-all"
+    else
+        echo "Données non valides pour lv-all"
+    fi
+
+    # Lancer ton programme ici
+    ./codeC/w_wire "$temp" "$fichier" > /dev/null
+    echo "Programme exécuté avec succès."
+    sort -t';' -k1,1 -k2,2 "$temp" > "$fichier"
+    echo "Fichier final sauvegardé dans : $fichier"
+
+# Ajoute ici d'autres conditions pour d'autres cas si nécessaire
+
+# Fin du chronomètre global
+
+fin_script_temps=$(date +%s)  # Capture l'heure de fin en secondes
+temps_total=$((fin_script_temps - lancement_script_temps))  # Temps total en secondes
+echo "Temps d'exécution total du script : $temps_total secondes"
